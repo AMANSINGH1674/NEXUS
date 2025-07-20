@@ -11,56 +11,13 @@ import Avatar from "../../components/Avatar"
 
 export default function ChatsScreen() {
   const { colors } = useTheme()
-  const { meshStatus, chats } = useMesh()
+  const { meshStatus } = useMesh()
   const navigation = useNavigation()
   const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredChats = chats.filter((chat) => chat.name.toLowerCase().includes(searchQuery.toLowerCase()))
-
-  const formatTime = (date: Date) => {
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-
-    if (diff < 60000) return "now"
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m`
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`
-    return date.toLocaleDateString()
-  }
-
-  const renderChatItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={[styles.chatItem, { borderBottomColor: colors.border }]}
-      onPress={() => navigation.navigate("Chat" as never, { chat: item } as never)}
-    >
-      <Avatar source={{ uri: item.avatar }} size={48} />
-
-      <View style={styles.chatContent}>
-        <View style={styles.chatHeader}>
-          <View style={styles.chatTitleRow}>
-            <Text style={[styles.chatName, { color: colors.text }]}>{item.name}</Text>
-            {item.isEncrypted && <Ionicons name="shield-checkmark" size={12} color={colors.success} />}
-          </View>
-          <View style={styles.chatTimeContainer}>
-            <Text style={[styles.chatTime, { color: colors.textSecondary }]}>{formatTime(item.lastMessageTime)}</Text>
-          </View>
-        </View>
-
-        <View style={styles.chatFooter}>
-          <Text style={[styles.lastMessage, { color: colors.textSecondary }]} numberOfLines={1}>
-            {item.lastMessage}
-          </Text>
-          <View style={styles.chatMeta}>
-            <Text style={[styles.hopsText, { color: colors.textSecondary }]}>{item.meshRoute.length}h</Text>
-            {item.unreadCount > 0 && (
-              <View style={[styles.unreadBadge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.unreadText}>{item.unreadCount}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  )
+  // Override with empty chats array - no mock users
+  const chats = []
+  const filteredChats = []
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -100,14 +57,14 @@ export default function ChatsScreen() {
         />
       </View>
 
-      {/* Chat List */}
-      <FlatList
-        data={filteredChats}
-        renderItem={renderChatItem}
-        keyExtractor={(item) => item.id}
-        style={styles.chatList}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* Empty State */}
+      <View style={styles.emptyState}>
+        <Ionicons name="chatbubble-ellipses-outline" size={60} color={colors.textSecondary} />
+        <Text style={[styles.emptyStateTitle, { color: colors.text }]}>No Chats Yet</Text>
+        <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+          Nearby devices will appear here when discovered
+        </Text>
+      </View>
     </SafeAreaView>
   )
 }
@@ -160,6 +117,23 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    textAlign: "center",
+    maxWidth: 250,
   },
   chatList: {
     flex: 1,

@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import MeshNetworkService from "../services/MeshNetworkService"
 import type { User, Chat, Message, Group, MeshStatus, NetworkNode } from "../types/mesh-types"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 interface MeshContextType {
   meshStatus: MeshStatus
@@ -50,6 +51,7 @@ export const MeshProvider: React.FC<MeshProviderProps> = ({ children }) => {
     meshDensity: "sparse",
   })
   
+  // Force empty arrays for users and chats - no mock data
   const [users, setUsers] = useState<User[]>([])
   const [chats, setChats] = useState<Chat[]>([])
   const [groups, setGroups] = useState<Group[]>([])
@@ -60,6 +62,22 @@ export const MeshProvider: React.FC<MeshProviderProps> = ({ children }) => {
   const [isInitializing, setIsInitializing] = useState(false)
 
   useEffect(() => {
+    // Clear all mock data on component mount
+    const clearMockData = async () => {
+      try {
+        await AsyncStorage.removeItem('cachedUsers')
+        await AsyncStorage.removeItem('cachedChats')
+        await AsyncStorage.removeItem('cachedGroups')
+        await AsyncStorage.removeItem('cachedMessages')
+        await AsyncStorage.removeItem('cachedRoutes')
+        console.log('Cleared all mock data on MeshContext mount')
+      } catch (error) {
+        console.error('Error clearing mock data:', error)
+      }
+    }
+    
+    clearMockData()
+    
     // Set up event listeners
     MeshNetworkService.on("meshStatusUpdated", handleMeshStatusUpdated)
     MeshNetworkService.on("userDiscovered", handleUserDiscovered)
@@ -146,24 +164,28 @@ export const MeshProvider: React.FC<MeshProviderProps> = ({ children }) => {
 
   const initializeMesh = async (userData: Partial<User>): Promise<boolean> => {
     try {
+      // Clear all mock data before initializing
+      await AsyncStorage.removeItem('cachedUsers')
+      await AsyncStorage.removeItem('cachedChats')
+      await AsyncStorage.removeItem('cachedGroups')
+      await AsyncStorage.removeItem('cachedMessages')
+      await AsyncStorage.removeItem('cachedRoutes')
+      console.log('Cleared all mock data before initialization')
+      
       setIsInitializing(true)
       const success = await MeshNetworkService.initialize(userData)
       
       if (success) {
-        // Load initial data
-        setUsers(MeshNetworkService.getUsers())
-        setChats(MeshNetworkService.getChats())
-        setGroups(MeshNetworkService.getGroups())
-        setNetworkNodes(MeshNetworkService.getNetworkNodes())
+        // Force empty arrays instead of loading from service
+        setUsers([])
+        setChats([])
+        setGroups([])
+        setNetworkNodes([])
         setLocalUser(MeshNetworkService.getLocalUser())
         setMeshStatus(MeshNetworkService.getMeshStatus())
         
-        // Load messages for each chat
-        const messagesMap = new Map<string, Message[]>()
-        MeshNetworkService.getChats().forEach(chat => {
-          messagesMap.set(chat.id, MeshNetworkService.getMessages(chat.id))
-        })
-        setMessages(messagesMap)
+        // Empty messages map
+        setMessages(new Map())
         
         setIsInitialized(true)
       }

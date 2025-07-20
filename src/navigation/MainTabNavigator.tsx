@@ -8,6 +8,7 @@ import ChatsScreen from "../screens/main/ChatsScreen"
 import GroupsScreen from "../screens/main/GroupsScreen"
 import NetworkScreen from "../screens/main/NetworkScreen"
 import EmergencyScreen from "../screens/main/EmergencyScreen"
+import SettingsScreen from "../screens/settings/SettingsScreen"
 
 const Tab = createBottomTabNavigator()
 
@@ -32,6 +33,8 @@ export default function MainTabNavigator() {
             iconName = focused ? "radio" : "radio-outline"
           } else if (route.name === "Emergency") {
             iconName = focused ? "flash" : "flash-outline"
+          } else if (route.name === "Settings") {
+            iconName = focused ? "settings" : "settings-outline"
           } else {
             iconName = "help-outline"
           }
@@ -107,6 +110,10 @@ export default function MainTabNavigator() {
             marginTop: -2,
           },
         }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
       />
     </Tab.Navigator>
   )

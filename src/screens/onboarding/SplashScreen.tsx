@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Image, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, Animated, TouchableOpacity, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -32,6 +33,37 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
     return () => clearTimeout(timer);
   }, [fadeAnim, scaleAnim, onComplete]);
+  
+  const clearAllData = async () => {
+    try {
+      // Get all keys
+      const keys = await AsyncStorage.getAllKeys();
+      console.log('Found keys to delete:', keys);
+      
+      // Remove all keys
+      await AsyncStorage.multiRemove(keys);
+      
+      Alert.alert(
+        "Success",
+        "All data has been cleared. The app will now restart.",
+        [{ text: "OK", onPress: () => onComplete() }]
+      );
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      Alert.alert("Error", "Failed to clear data. Please try again.");
+    }
+  };
+  
+  const confirmClearData = () => {
+    Alert.alert(
+      "Clear All Data",
+      "This will remove ALL data including mock users, conversations, and settings. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Clear Everything", onPress: clearAllData, style: "destructive" }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -59,6 +91,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           <View style={[styles.meshNode, styles.meshNodeActive]} />
           <View style={styles.meshNode} />
         </View>
+        
+        <TouchableOpacity 
+          style={styles.clearButton}
+          onPress={confirmClearData}
+        >
+          <Text style={styles.clearButtonText}>CLEAR ALL DATA</Text>
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );
@@ -93,6 +132,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 40,
   },
   meshNode: {
     width: 12,
@@ -104,6 +144,18 @@ const styles = StyleSheet.create({
   meshNodeActive: {
     backgroundColor: "#4CAF50",
     transform: [{ scale: 1.2 }],
+  },
+  clearButton: {
+    backgroundColor: "#dc3545",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  clearButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

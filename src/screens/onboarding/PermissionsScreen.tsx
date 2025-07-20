@@ -76,6 +76,8 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = ({ onComplete }) => 
   };
 
   const requestBluetoothPermissions = async () => {
+    let permissionGranted = false;
+    
     if (Platform.OS === "android") {
       if (parseInt(Platform.Version.toString(), 10) >= 31) {
         // Android 12+ (API 31+)
@@ -87,18 +89,32 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = ({ onComplete }) => 
 
         const granted = await PermissionsAndroid.requestMultiple(permissions);
         
-        const allGranted = Object.values(granted).every(
+        permissionGranted = Object.values(granted).every(
           (status) => status === PermissionsAndroid.RESULTS.GRANTED
         );
         
-        setPermissionStatus((prev) => ({ ...prev, bluetooth: allGranted }));
+        setPermissionStatus((prev) => ({ ...prev, bluetooth: permissionGranted }));
       } else {
         // Older Android versions
+        permissionGranted = true;
         setPermissionStatus((prev) => ({ ...prev, bluetooth: true }));
       }
     } else {
       // iOS doesn't have runtime Bluetooth permissions
+      permissionGranted = true;
       setPermissionStatus((prev) => ({ ...prev, bluetooth: true }));
+    }
+    
+    // Start Bluetooth scanning if permission was granted
+    if (permissionGranted) {
+      try {
+        // Import and start the Bluetooth service
+        const BluetoothMeshService = require('../../services/BluetoothMeshService').default;
+        await BluetoothMeshService.startScanning();
+        console.log('Bluetooth scanning started');
+      } catch (error) {
+        console.error('Failed to start Bluetooth scanning:', error);
+      }
     }
   };
 
@@ -127,6 +143,23 @@ const PermissionsScreen: React.FC<PermissionsScreenProps> = ({ onComplete }) => 
     await requestLocationPermissions();
     await requestBackgroundLocationPermissions();
     await requestNotificationPermissions();
+    
+    // Check if all permissions are granted and start Bluetooth scanning
+    const allGranted = permissionStatus.bluetooth && 
+                      permissionStatus.location && 
+                      permissionStatus.background && 
+                      permissionStatus.notifications;
+                      
+    if (allGranted) {
+      try {
+        // Import and start the Bluetooth service
+        const BluetoothMeshService = require('../../services/BluetoothMeshService').default;
+        await BluetoothMeshService.startScanning();
+        console.log('Bluetooth scanning started after all permissions granted');
+      } catch (error) {
+        console.error('Failed to start Bluetooth scanning:', error);
+      }
+    }
   };
 
   return (

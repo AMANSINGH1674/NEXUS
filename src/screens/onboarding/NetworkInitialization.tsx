@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { useMesh } from "../../context/MeshContext";
 import { Button } from "../../components/ui/button";
 
+// Import BluetoothMeshService
+import BluetoothMeshService from "../../services/BluetoothMeshService";
+
 interface NetworkInitializationProps {
   isInitialized: boolean;
   onComplete: () => void;
@@ -20,30 +23,72 @@ const NetworkInitialization: React.FC<NetworkInitializationProps> = ({
     peersDiscovered: false,
   });
   const [progress, setProgress] = useState(0);
+  const [discoveredDevices, setDiscoveredDevices] = useState(0);
 
   useEffect(() => {
-    // Simulate initialization steps
+    // Set up event listeners for real Bluetooth events
+    const onBluetoothInitialized = () => {
+      setInitSteps((prev) => ({ ...prev, bluetoothReady: true }));
+      setProgress((prev) => Math.max(prev, 25));
+    };
+    
+    const onKeysGenerated = () => {
+      setInitSteps((prev) => ({ ...prev, keysGenerated: true }));
+      setProgress((prev) => Math.max(prev, 50));
+    };
+    
+    const onMeshStarted = () => {
+      setInitSteps((prev) => ({ ...prev, meshStarted: true }));
+      setProgress((prev) => Math.max(prev, 75));
+      
+      // Start scanning for devices
+      BluetoothMeshService.startScanning().catch(console.error);
+    };
+    
+    const onDeviceDiscovered = () => {
+      setInitSteps((prev) => ({ ...prev, peersDiscovered: true }));
+      setDiscoveredDevices((prev) => prev + 1);
+      setProgress((prev) => Math.max(prev, 90));
+    };
+    
+    // Register event listeners
+    BluetoothMeshService.on("initialized", onBluetoothInitialized);
+    BluetoothMeshService.on("advertisingStarted", onKeysGenerated);
+    BluetoothMeshService.on("meshNetworkUpdated", onMeshStarted);
+    BluetoothMeshService.on("deviceDiscovered", onDeviceDiscovered);
+    
+    // Fallback timers for demonstration purposes
     const timer1 = setTimeout(() => {
       setInitSteps((prev) => ({ ...prev, bluetoothReady: true }));
-      setProgress(25);
+      setProgress((prev) => Math.max(prev, 25));
     }, 1000);
 
     const timer2 = setTimeout(() => {
       setInitSteps((prev) => ({ ...prev, keysGenerated: true }));
-      setProgress(50);
+      setProgress((prev) => Math.max(prev, 50));
     }, 2000);
 
     const timer3 = setTimeout(() => {
       setInitSteps((prev) => ({ ...prev, meshStarted: true }));
-      setProgress(75);
+      setProgress((prev) => Math.max(prev, 75));
+      
+      // Start scanning if not already started
+      BluetoothMeshService.startScanning().catch(console.error);
     }, 3000);
 
     const timer4 = setTimeout(() => {
-      setInitSteps((prev) => ({ ...prev, peersDiscovered: true }));
+      // Force progress to 100% after 10 seconds even if no devices found
       setProgress(100);
-    }, 4000);
+    }, 10000);
 
     return () => {
+      // Clean up event listeners
+      BluetoothMeshService.removeListener("initialized", onBluetoothInitialized);
+      BluetoothMeshService.removeListener("advertisingStarted", onKeysGenerated);
+      BluetoothMeshService.removeListener("meshNetworkUpdated", onMeshStarted);
+      BluetoothMeshService.removeListener("deviceDiscovered", onDeviceDiscovered);
+      
+      // Clear timers
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
@@ -60,6 +105,19 @@ const NetworkInitialization: React.FC<NetworkInitializationProps> = ({
       return () => clearTimeout(timer);
     }
   }, [progress, onComplete]);
+  
+  // Update progress when devices are discovered
+  useEffect(() => {
+    if (discoveredDevices > 0) {
+      // Set progress to at least 90% when devices are found
+      setProgress((prev) => Math.max(prev, 90));
+      
+      // Set to 100% if we've found multiple devices
+      if (discoveredDevices >= 2) {
+        setProgress(100);
+      }
+    }
+  }, [discoveredDevices]);
 
   return (
     <View style={styles.container}>
@@ -83,7 +141,7 @@ const NetworkInitialization: React.FC<NetworkInitializationProps> = ({
           complete={initSteps.meshStarted} 
         />
         <StepItem 
-          label="Discovering Peers" 
+          label={`Discovering Peers (${discoveredDevices} found)`}
           complete={initSteps.peersDiscovered} 
         />
       </View>
@@ -93,6 +151,9 @@ const NetworkInitialization: React.FC<NetworkInitializationProps> = ({
         <Text style={styles.statusValue}>
           {meshStatus.isActive ? "Active" : "Initializing..."}
         </Text>
+        
+        <Text style={styles.statusLabel}>Devices Found:</Text>
+        <Text style={styles.statusValue}>{discoveredDevices}</Text>
         
         {meshStatus.isActive && (
           <>
@@ -113,7 +174,7 @@ const NetworkInitialization: React.FC<NetworkInitializationProps> = ({
         disabled={progress < 100}
         style={styles.button}
       >
-        {progress < 100 ? "Initializing..." : "Continue"}
+        {progress < 100 ? "Scanning for Devices..." : "Continue"}
       </Button>
     </View>
   );

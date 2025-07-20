@@ -19,6 +19,7 @@ import NetworkTopologyScreen from "./src/screens/network/NetworkTopologyScreen"
 import { ThemeProvider } from "./src/context/ThemeContext"
 import { MeshProvider, useMesh } from "./src/context/MeshContext"
 import MeshNetworkService from "./src/services/MeshNetworkService"
+import { performStartupCleanup } from "./src/utils/startupCleanup"
 
 const Stack = createStackNavigator()
 
@@ -30,7 +31,22 @@ function AppContent() {
   const { initializeMesh, isInitialized } = useMesh()
 
   useEffect(() => {
-    checkFirstLaunch()
+    // Function to run on app startup
+    const handleAppStartup = async () => {
+      try {
+        // Perform startup cleanup to remove all mock data
+        await performStartupCleanup();
+        console.log('Startup cleanup completed');
+        
+        // Check if this is the first launch
+        await checkFirstLaunch();
+      } catch (error) {
+        console.error('Error during app startup:', error);
+      }
+    };
+    
+    // Run startup tasks
+    handleAppStartup();
 
     // Handle app state changes for background/foreground transitions
     const subscription = AppState.addEventListener("change", handleAppStateChange)
@@ -52,7 +68,7 @@ function AppContent() {
     }
   }
 
-  const checkFirstLaunch = async () => {
+  const checkFirstLaunch = async (): Promise<void> => {
     try {
       const hasLaunched = await AsyncStorage.getItem("hasLaunched")
       if (hasLaunched === null) {
@@ -64,6 +80,7 @@ function AppContent() {
         setTimeout(() => setAppState("main"), 2000)
       }
     } catch (error) {
+      console.error('Error checking first launch:', error)
       setIsFirstLaunch(true)
     }
   }

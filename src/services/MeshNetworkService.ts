@@ -45,7 +45,7 @@ class MeshNetworkService extends EventEmitter {
     try {
       console.log("Initializing Mesh Network Service...");
 
-      // Load local user data
+      // Load local user data (which now clears all mock data)
       await this.loadLocalUser(userData);
 
       // Initialize Bluetooth service
@@ -54,13 +54,13 @@ class MeshNetworkService extends EventEmitter {
         throw new Error("Failed to initialize Bluetooth service");
       }
 
-      // Load cached data
-      await this.loadCachedData();
+      // Explicitly DO NOT load cached data
+      // We want a clean start with no mock users
 
       // Start periodic sync
       this.startPeriodicSync();
 
-      console.log("Mesh Network Service initialized successfully");
+      console.log("Mesh Network Service initialized successfully with no mock data");
       this.emit("initialized");
       return true;
     } catch (error) {
@@ -72,6 +72,14 @@ class MeshNetworkService extends EventEmitter {
 
   private async loadLocalUser(userData: Partial<User>): Promise<void> {
     try {
+      // Clear all mock data first
+      await AsyncStorage.removeItem("cachedUsers");
+      await AsyncStorage.removeItem("cachedChats");
+      await AsyncStorage.removeItem("cachedGroups");
+      await AsyncStorage.removeItem("cachedMessages");
+      await AsyncStorage.removeItem("cachedRoutes");
+      console.log("Cleared all mock users and data");
+      
       // Try to load existing user data
       const storedUserData = await AsyncStorage.getItem("localUser");
       let user: User;
@@ -100,6 +108,13 @@ class MeshNetworkService extends EventEmitter {
       }
 
       this.localUser = user;
+      
+      // Initialize with empty collections - no mock data
+      this.users = new Map();
+      this.chats = new Map();
+      this.groups = new Map();
+      this.messages = new Map();
+      
       console.log("Local user initialized:", user.name);
     } catch (error) {
       console.error("Failed to load local user:", error);
@@ -109,71 +124,19 @@ class MeshNetworkService extends EventEmitter {
 
   private async loadCachedData(): Promise<void> {
     try {
-      // Load cached users
-      const usersData = await AsyncStorage.getItem("cachedUsers");
-      if (usersData) {
-        const users = JSON.parse(usersData) as User[];
-        users.forEach((user) => {
-          this.users.set(user.id, {
-            ...user,
-            lastSeen: new Date(user.lastSeen),
-            isOnline: false, // Assume offline until rediscovered
-          });
-        });
-      }
-
-      // Load cached chats
-      const chatsData = await AsyncStorage.getItem("cachedChats");
-      if (chatsData) {
-        const chats = JSON.parse(chatsData) as Chat[];
-        chats.forEach((chat) => {
-          this.chats.set(chat.id, {
-            ...chat,
-            lastMessageTime: new Date(chat.lastMessageTime),
-          });
-        });
-      }
-
-      // Load cached groups
-      const groupsData = await AsyncStorage.getItem("cachedGroups");
-      if (groupsData) {
-        const groups = JSON.parse(groupsData) as Group[];
-        groups.forEach((group) => {
-          this.groups.set(group.id, {
-            ...group,
-            createdAt: new Date(group.createdAt),
-            lastMessageTime: new Date(group.lastMessageTime),
-          });
-        });
-      }
-
-      // Load cached messages (limited to recent ones)
-      const messagesData = await AsyncStorage.getItem("cachedMessages");
-      if (messagesData) {
-        const messageMap = JSON.parse(messagesData) as Record<string, Message[]>;
-        Object.entries(messageMap).forEach(([chatId, messages]) => {
-          this.messages.set(
-            chatId,
-            messages.map((msg) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            }))
-          );
-        });
-      }
-
-      // Load cached routes
-      const routesData = await AsyncStorage.getItem("cachedRoutes");
-      if (routesData) {
-        const routes = JSON.parse(routesData) as Record<string, string[]>;
-        Object.entries(routes).forEach(([destination, route]) => {
-          this.routes.set(destination, route);
-        });
-      }
-
-      console.log("Cached data loaded");
+      // Skip loading cached data to ensure no mock data is loaded
+      console.log("Skipping cached data loading to ensure a clean start");
+      
+      // Clear any existing cached data
+      await AsyncStorage.removeItem("cachedUsers");
+      await AsyncStorage.removeItem("cachedChats");
+      await AsyncStorage.removeItem("cachedGroups");
+      await AsyncStorage.removeItem("cachedMessages");
+      await AsyncStorage.removeItem("cachedRoutes");
+      
+      console.log("All cached data cleared for fresh start");
     } catch (error) {
-      console.error("Failed to load cached data:", error);
+      console.error("Failed to clear cached data:", error);
     }
   }
 
