@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Required Bluetooth permissions for iOS -->
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app uses Bluetooth to connect with nearby devices for mesh networking.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>This app uses Bluetooth to connect with nearby devices for mesh networking.</string>
+    
+    <!-- Required Location permissions for iOS -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app requires location access to scan for nearby Bluetooth devices and for emergency location sharing.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app requires background location access to maintain mesh network connections when the app is in the background.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app requires background location access to maintain mesh network connections when the app is in the background.</string>
+    
+    <!-- Background modes for iOS -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-central</string>
+        <string>bluetooth-peripheral</string>
+        <string>location</string>
+        <string>fetch</string>
+        <string>processing</string>
+    </array>
+</dict>
+</plist>
