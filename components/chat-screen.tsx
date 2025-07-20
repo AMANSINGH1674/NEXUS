@@ -14,37 +14,8 @@ interface ChatScreenProps {
   onSendMessage: (chatId: string, content: string, type?: "text" | "image") => void
 }
 
-// Mock messages for demonstration
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    content: "Hey! Are you coming to the meeting?",
-    type: "text",
-    senderId: "1",
-    timestamp: new Date(Date.now() - 300000),
-    status: "delivered",
-  },
-  {
-    id: "2",
-    content: "Yes, I'll be there in 10 minutes",
-    type: "text",
-    senderId: "me",
-    timestamp: new Date(Date.now() - 240000),
-    status: "delivered",
-  },
-  {
-    id: "3",
-    content: "Great! See you there 👍",
-    type: "text",
-    senderId: "1",
-    timestamp: new Date(Date.now() - 180000),
-    status: "delivered",
-  },
-]
-
 export default function ChatScreen({ chat, onBack, onSendMessage }: ChatScreenProps) {
   const [message, setMessage] = useState("")
-  const [messages] = useState<Message[]>(mockMessages)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSend = () => {
@@ -108,36 +79,7 @@ export default function ChatScreen({ chat, onBack, onSendMessage }: ChatScreenPr
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.senderId === "me" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                msg.senderId === "me" ? "bg-green-500 text-white" : "bg-white text-gray-800 border"
-              }`}
-            >
-              <p className="text-sm">{msg.content}</p>
-              <div
-                className={`flex items-center justify-end gap-1 mt-1 text-xs ${
-                  msg.senderId === "me" ? "text-green-100" : "text-gray-500"
-                }`}
-              >
-                <span>{formatTime(msg.timestamp)}</span>
-                {msg.senderId === "me" && (
-                  <div className="flex">
-                    <div
-                      className={`w-1 h-1 rounded-full ${msg.status === "delivered" ? "bg-blue-300" : "bg-gray-300"}`}
-                    />
-                    <div
-                      className={`w-1 h-1 rounded-full ml-0.5 ${
-                        msg.status === "delivered" ? "bg-blue-300" : "bg-gray-300"
-                      }`}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Messages will be populated here */}
       </div>
 
       {/* Message Input */}

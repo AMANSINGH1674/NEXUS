@@ -7,62 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import type { StorageItem } from "@/types/chat"
 
-// Mock storage data
-const mockStorageItems: StorageItem[] = [
-  {
-    id: "1",
-    name: "Emergency_Plan.pdf",
-    type: "file",
-    size: 2048000,
-    date: new Date(Date.now() - 86400000),
-    chatId: "group_1",
-  },
-  {
-    id: "2",
-    name: "Location_Screenshot.jpg",
-    type: "image",
-    size: 1536000,
-    date: new Date(Date.now() - 172800000),
-    chatId: "1",
-  },
-  {
-    id: "3",
-    name: "Chat with Alice Johnson",
-    type: "chat",
-    size: 512000,
-    date: new Date(Date.now() - 259200000),
-    chatId: "1",
-  },
-  {
-    id: "4",
-    name: "Group_Photo.jpg",
-    type: "image",
-    size: 3072000,
-    date: new Date(Date.now() - 345600000),
-    chatId: "group_1",
-  },
-  {
-    id: "5",
-    name: "Meeting_Notes.txt",
-    type: "file",
-    size: 256000,
-    date: new Date(Date.now() - 432000000),
-    chatId: "group_2",
-  },
-]
-
 export default function StorageTab() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<"all" | "images" | "files" | "chats">("all")
-
-  const filteredItems = mockStorageItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory =
-      selectedCategory === "all" ||
-      item.type === selectedCategory ||
-      (selectedCategory === "chats" && item.type === "chat")
-    return matchesSearch && matchesCategory
-  })
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
@@ -77,11 +24,13 @@ export default function StorageTab() {
   }
 
   const getTotalStorage = () => {
-    return mockStorageItems.reduce((total, item) => total + item.size, 0)
+    // This function needs to be implemented to return the total storage
+    return 0
   }
 
   const getUsedStorage = () => {
-    return getTotalStorage()
+    // This function needs to be implemented to return the used storage
+    return 0
   }
 
   const getStoragePercentage = () => {
@@ -148,10 +97,10 @@ export default function StorageTab() {
       <div className="p-4 border-b">
         <div className="flex gap-2 overflow-x-auto">
           {[
-            { key: "all", label: "All", count: mockStorageItems.length },
-            { key: "images", label: "Images", count: mockStorageItems.filter((i) => i.type === "image").length },
-            { key: "files", label: "Files", count: mockStorageItems.filter((i) => i.type === "file").length },
-            { key: "chats", label: "Chats", count: mockStorageItems.filter((i) => i.type === "chat").length },
+            { key: "all", label: "All", count: 0 },
+            { key: "images", label: "Images", count: 0 },
+            { key: "files", label: "Files", count: 0 },
+            { key: "chats", label: "Chats", count: 0 },
           ].map((category) => (
             <Button
               key={category.key}
@@ -168,43 +117,12 @@ export default function StorageTab() {
 
       {/* Storage Items */}
       <div className="flex-1 overflow-y-auto">
-        {filteredItems.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <HardDrive className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>No files found</p>
-            <p className="text-sm mt-1">Files will appear here as you chat</p>
-          </div>
-        ) : (
-          filteredItems.map((item) => (
-            <div key={item.id} className="flex items-center p-4 hover:bg-gray-50 border-b border-gray-100">
-              <div className="mr-3">{getIcon(item.type)}</div>
-
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
-                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                  <span>{formatFileSize(item.size)}</span>
-                  <span>•</span>
-                  <span>{formatDate(item.date)}</span>
-                  {item.chatId && (
-                    <>
-                      <span>•</span>
-                      <span>From chat</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                  <Download className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))
-        )}
+        {/* This section needs to be implemented to display storage items */}
+        <div className="p-8 text-center text-gray-500">
+          <HardDrive className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <p>No files found</p>
+          <p className="text-sm mt-1">Files will appear here as you chat</p>
+        </div>
       </div>
 
       {/* Clear Storage Button */}

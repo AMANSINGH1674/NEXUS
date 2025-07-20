@@ -16,8 +16,23 @@ interface NetworkScreenProps {
 export default function NetworkScreen({ meshStatus, users, darkMode, onShowTopology }: NetworkScreenProps) {
   const [isScanning, setIsScanning] = useState(false)
 
-  const handleScan = () => {
+  const handleScan = async () => {
     setIsScanning(true)
+    // Web Bluetooth API: Request device
+    const nav: any = navigator;
+    if (nav.bluetooth) {
+      try {
+        await nav.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [] // Add service UUIDs if needed
+        })
+        // You can add logic here to handle the discovered device(s)
+      } catch (error) {
+        alert("Bluetooth permission denied or no device selected.")
+      }
+    } else {
+      alert("Bluetooth is not supported by your browser.")
+    }
     setTimeout(() => setIsScanning(false), 3000)
   }
 
@@ -177,7 +192,7 @@ export default function NetworkScreen({ meshStatus, users, darkMode, onShowTopol
 
       {/* Network Actions */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex justify-center">
           <Button
             onClick={handleScan}
             disabled={isScanning}
@@ -195,10 +210,6 @@ export default function NetworkScreen({ meshStatus, users, darkMode, onShowTopol
                 Scan Network
               </>
             )}
-          </Button>
-          <Button variant="outline" className={darkMode ? "border-gray-600 text-white hover:bg-gray-800" : ""}>
-            <Zap className="h-4 w-4 mr-2" />
-            Optimize
           </Button>
         </div>
       </div>

@@ -114,6 +114,20 @@ export default function EmergencyScreen({ meshStatus, darkMode, users }: Emergen
               variant="outline"
               size="sm"
               className={darkMode ? "border-gray-600 text-white hover:bg-gray-800" : ""}
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      setLocation(`${position.coords.latitude}, ${position.coords.longitude}`)
+                    },
+                    (error) => {
+                      alert("Location access denied or unavailable.")
+                    }
+                  )
+                } else {
+                  alert("Geolocation is not supported by your browser.")
+                }
+              }}
             >
               <MapPin className="h-4 w-4" />
             </Button>
@@ -142,6 +156,20 @@ export default function EmergencyScreen({ meshStatus, darkMode, users }: Emergen
             <Button
               variant="outline"
               className={`${darkMode ? "border-gray-600 text-white hover:bg-gray-800" : ""} h-12`}
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      setLocation(`${position.coords.latitude}, ${position.coords.longitude}`)
+                    },
+                    (error) => {
+                      alert("Location access denied or unavailable.")
+                    }
+                  )
+                } else {
+                  alert("Geolocation is not supported by your browser.")
+                }
+              }}
             >
               <MapPin className="h-4 w-4 mr-2" />
               Share Location

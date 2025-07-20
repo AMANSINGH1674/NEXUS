@@ -47,10 +47,45 @@ export default function PermissionsScreen({ onComplete, darkMode }: PermissionsS
   ])
 
   const handlePermissionRequest = async (permissionId: string) => {
-    // Simulate permission request
-    setTimeout(() => {
-      setPermissions((prev) => prev.map((p) => (p.id === permissionId ? { ...p, granted: true } : p)))
-    }, 1000)
+    if (permissionId === "bluetooth") {
+      const nav: any = navigator;
+      if (nav.bluetooth) {
+        try {
+          await nav.bluetooth.requestDevice({ acceptAllDevices: true });
+          setPermissions((prev) => prev.map((p) => (p.id === permissionId ? { ...p, granted: true } : p)));
+        } catch {
+          // Permission denied or cancelled
+        }
+      } else {
+        alert("Bluetooth is not supported by your browser.");
+      }
+    } else if (permissionId === "location") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          () => setPermissions((prev) => prev.map((p) => (p.id === permissionId ? { ...p, granted: true } : p))),
+          (error) => {
+            if (error.code === error.PERMISSION_DENIED) {
+              alert("Location permission denied. Please allow location access to continue.");
+            } else {
+              alert("Unable to retrieve location. Please check your browser settings.");
+            }
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    } else if (permissionId === "notifications") {
+      if ("Notification" in window) {
+        Notification.requestPermission().then((result) => {
+          if (result === "granted") {
+            setPermissions((prev) => prev.map((p) => (p.id === permissionId ? { ...p, granted: true } : p)));
+          }
+        });
+      } else {
+        alert("Notifications are not supported by your browser.");
+      }
+    }
   }
 
   const allRequiredGranted = permissions.filter((p) => p.required).every((p) => p.granted)

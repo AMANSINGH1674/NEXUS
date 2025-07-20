@@ -14,41 +14,7 @@ export default function GroupChat({ onBack }: GroupChatProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedUsers, setSelectedUsers] = useState<User[]>([])
 
-  // Mock users for demonstration
-  const mockUsers: User[] = [
-    {
-      id: "1",
-      name: "Alice Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      isOnline: true,
-      lastSeen: new Date(),
-    },
-    {
-      id: "2",
-      name: "Bob Smith",
-      avatar: "/placeholder.svg?height=40&width=40",
-      isOnline: false,
-      lastSeen: new Date(Date.now() - 300000),
-    },
-    {
-      id: "3",
-      name: "Carol Davis",
-      avatar: "/placeholder.svg?height=40&width=40",
-      isOnline: true,
-      lastSeen: new Date(),
-    },
-    {
-      id: "4",
-      name: "David Wilson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      isOnline: false,
-      lastSeen: new Date(Date.now() - 600000),
-    },
-  ]
-
-  const filteredUsers = mockUsers.filter(
-    (user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()) && !selectedUsers.includes(user),
-  )
+  const filteredUsers: User[] = []
 
   const handleUserSelect = (user: User) => {
     setSelectedUsers([...selectedUsers, user])
@@ -85,7 +51,6 @@ export default function GroupChat({ onBack }: GroupChatProps) {
       {/* Search */}
       <div className="p-4 border-b">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             placeholder="Search contacts..."
             value={searchQuery}
@@ -167,13 +132,11 @@ export default function GroupChat({ onBack }: GroupChatProps) {
       </div>
 
       {/* Create Group Button */}
-      {selectedUsers.length > 0 && (
-        <div className="p-4">
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleCreateGroup}>
-            Create Group
-          </Button>
-        </div>
-      )}
+      <div className="p-4">
+        <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleCreateGroup}>
+          Create Group
+        </Button>
+      </div>
     </div>
   )
 }

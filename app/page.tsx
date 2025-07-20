@@ -16,49 +16,6 @@ import ChatInterface from "@/components/chat/chat-interface"
 import NetworkTopology from "@/components/network/network-topology"
 import type { Chat, User, MeshStatus } from "@/types/mesh-types"
 
-// Mock data for demonstration
-const mockUsers: User[] = [
-  {
-    id: "user_1",
-    name: "Alice Johnson",
-    avatar: "/placeholder.svg?height=40&width=40",
-    deviceId: "BLE:AA:BB:CC:DD:EE:01",
-    isOnline: true,
-    lastSeen: new Date(),
-    batteryLevel: 85,
-    signalStrength: 4,
-    hops: 1,
-    publicKey: "04a1b2c3d4e5f6...",
-    meshRole: "relay",
-  },
-  {
-    id: "user_2",
-    name: "Bob Smith",
-    avatar: "/placeholder.svg?height=40&width=40",
-    deviceId: "BLE:AA:BB:CC:DD:EE:02",
-    isOnline: true,
-    lastSeen: new Date(),
-    batteryLevel: 62,
-    signalStrength: 3,
-    hops: 2,
-    publicKey: "04b2c3d4e5f6a7...",
-    meshRole: "node",
-  },
-  {
-    id: "user_3",
-    name: "Carol Davis",
-    avatar: "/placeholder.svg?height=40&width=40",
-    deviceId: "BLE:AA:BB:CC:DD:EE:03",
-    isOnline: false,
-    lastSeen: new Date(Date.now() - 300000),
-    batteryLevel: 23,
-    signalStrength: 2,
-    hops: 3,
-    publicKey: "04c3d4e5f6a7b8...",
-    meshRole: "edge",
-  },
-]
-
 const mockMeshStatus: MeshStatus = {
   isActive: true,
   nodeCount: 47,
@@ -80,7 +37,7 @@ export default function BluetoothMeshApp() {
   const [showTopology, setShowTopology] = useState(false)
   const [meshStatus, setMeshStatus] = useState<MeshStatus>(mockMeshStatus)
   const [darkMode, setDarkMode] = useState(false)
-  const [users] = useState<User[]>(mockUsers)
+  const [users] = useState<User[]>([])
   const [userProfile, setUserProfile] = useState<{ name: string; avatar: string } | null>(null)
 
   // Simulate mesh network updates
@@ -219,8 +176,8 @@ export default function BluetoothMeshApp() {
             className={`flex-1 py-3 px-2 text-center ${
               activeScreen === "chats"
                 ? darkMode
-                  ? "text-green-400 bg-gray-700"
-                  : "text-green-600 bg-green-50"
+                  ? "text-blue-400 bg-gray-700"
+                  : "text-blue-600 bg-blue-50"
                 : darkMode
                   ? "text-gray-400"
                   : "text-gray-600"
@@ -228,11 +185,6 @@ export default function BluetoothMeshApp() {
           >
             <div className="relative">
               <MessageCircle className="h-5 w-5 mx-auto mb-1" />
-              {getUnreadCount() > 0 && (
-                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {getUnreadCount()}
-                </div>
-              )}
             </div>
             <span className="text-xs">Chats</span>
           </button>
@@ -267,9 +219,6 @@ export default function BluetoothMeshApp() {
           >
             <div className="relative">
               <Radar className="h-5 w-5 mx-auto mb-1" />
-              <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {meshStatus.connectedNodes}
-              </div>
             </div>
             <span className="text-xs">Network</span>
           </button>
