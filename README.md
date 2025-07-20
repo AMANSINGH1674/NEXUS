@@ -1,4 +1,4 @@
-# MeshConnect
+# MeshConnect [https://mesh-bluetooth.netlify.app/]
 
 MeshConnect is a modern Bluetooth Mesh networking app for secure, off-grid communication. Built with React Native, it enables seamless messaging, file sharing, and emergency broadcasts—no internet required.
 
